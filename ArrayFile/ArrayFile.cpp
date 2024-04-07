@@ -1,289 +1,131 @@
-﻿ // ArrayFile.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
-#include <iostream>
-#include <fstream>
-#include <ios>
+﻿#include <iostream>
+#include <cmath>
 #include <vector>
-
-#include <time.h>
+#include <unordered_map>
+#include <locale>
 
 using namespace std;
-
-typedef double* pDouble;
-/*
-*   ConsoleInputArrayDouble
-*   
-*/
-int ConsoleInputSizeArray(const int sizeMax)
-{
-    int size = 0; 
-    do {
-        cout << " Input size Array ( 0< 1 < " << sizeMax << " ) ";
-        cin >> size;
-    } while (size <= 0 || size >= sizeMax);
-    return size;
-}
-/*
-*   ConsoleInputArrayDouble
-*
-*/
-int ConsoleInputArray(int sizeMax, double A[])
-{
-    int size = ConsoleInputSizeArray(sizeMax);
-        for (int i = 0; i < size; i++) {
-        cout << " Array[ " << i << "] "; cin >> A[i];
+// Task 1
+void task1() {
+    int N;
+    //введення
+    cout << "Введіть розмір масиву N: ";
+    cin >> N;
+    int A[100];
+    cout << "Введіть елементи масиву A:" << endl;
+    for (int i = 0; i < N; ++i) {
+        cout << "A[" << i << "]: ";
+        cin >> A[i];
     }
-    return size;
-}
-
-/*
-*   RndInputArrayDouble
-*
-*/
-int RndInputArray(int sizeMax, double A[])
-{
-    int size = ConsoleInputSizeArray(sizeMax);
-    int r1=0, r2=0;
-    srand(size);
-
-    for (int i = 0; i < size; i++) {
-        r1 = rand();
-        r2 = rand();
-        A[i] = 100.0 * r1;
-        A[i] = A[i] / (1.0 + r2);
-        cout << A[i] << "   ";
-    }
-    return size;
-}
-
-int ConsoleInputDynamicArrayNew(int sizeMax, pDouble &pA)
-{
-    int size = ConsoleInputSizeArray(sizeMax);
-    pA = new double[size];
-    if (pA == nullptr) { return 0; }
-    for (int i = 0; i < size; i++) {
-        cout << " Array[ " << i << "] "; cin >> pA[i];
-    }
-    return size;
-}
-
-int ConsoleInputDynamicArray_calloc(int sizeMax, pDouble& pA)
-{
-    int size = ConsoleInputSizeArray(sizeMax);
-    pA = (double*)calloc(size, sizeof(double));      // pA = (double*)malloc(size * sizeof(double)); 
-    if (pA == nullptr) { return 0; }
-    for (int i = 0; i < size; i++) {
-        cout << " Array[ " << i << "] "; cin >> pA[i];
-    }
-    return size;
-}
-
-void ConsoleInputVector(int sizeMax, vector<double> &A)
-{
-    int size = ConsoleInputSizeArray(sizeMax);
-    double d;
-    for (int i = 0; i < size; i++) {
-        cout << " Array[ " << i << "] "; cin >> d; A.push_back(d);
-    }
-    return ;
-}
-
-
-/*
-*  WriteArrayTextFile 
-*
-*/
-
-void WriteArrayTextFile(int n, double *arr, const char *fileName )
-{
-    ofstream fout(fileName);
-    if (fout.fail()) return;
-    fout << n << endl;
-    for (int i = 0; i < n; i++)
-        fout << arr[i] << "   ";
-    fout.close(); //
-}
-/*
-*  ReadArrayTextFile
-*
-*/
-
-
-int ReadArrayTextFile(int n, double* arr, const char* fileName)
-{
-    int size;
-    ifstream fin(fileName);
-    if (fin.fail()) return 0;
-    fin >> size;
-    if (size <= 0) return 0;
-    if (size > n) size = n;   
-    for (int i = 0; i < n; i++)
-       fin>> arr[i];
-    fin.close();
-    return size;
-    
-}
-
-
-void WriteArrayBinFile(int n, double* arr, const char* fileName)
-{
-    //ios_base
-    ofstream bfout(fileName, ios_base::binary);
-    if (bfout.fail()) return;
-    bfout.write((const char*)&n, sizeof(int));
-    std::streamsize  cn = static_cast<std::streamsize>(n) *sizeof(double);
-    bfout.write((const char*)arr, cn);
-    bfout.close();
-}
-
-int ReadArrayBinFile(int n, double* arr, const char* fileName)
-{
-    int size=0;
-    ifstream bfin(fileName, ios_base::binary);
-    if (bfin.fail()) return 0;
-    bfin.read((char*)&size, sizeof(int));
-    if (size <= 0) return 0;
-    if (size > n) size = n;
-    bfin.read((char*)arr, static_cast<std::streamsize>(size) * sizeof(double));
-    bfin.close();
-    // ssdhs
-    return size;
-}
-
-void ShowMainMenu()
-{
-    cout << "    Main Menu  \n";
-    cout << "    1.  Task 1  \n";
-    cout << "    2.  Task 2  \n";
-    cout << "    3.  Task 3  \n";
-  }
-
-void MenuTask()
-{
-    cout << "     Menu Task   \n";
-    cout << "    1.  Local array  \n";
-    cout << "    2.  Dynamic array 1 \n";
-    cout << "    3.  Dynamic array 2  new \n"; 
-    cout << "    4.  Dynamic array : vector \n";
-    cout << "    5.  Exit \n";
-}
-
-void MenuInput()
-{
-    cout << "     Menu Input   \n";
-    cout << "    1.  Console all \n";
-    cout << "    2.  Console - size, array - random \n";
-    cout << "    3.  File 1.txt \n";
-    cout << "    4.  bb    \n";
-    cout << "    5.  Exit \n";
-}
-
-
-/*
-* Задано одновимірний масив А розміру 2N. 
-* Побудувати два масиви В і С розміру N, 
-* включивши  у масив В елементи масиву А з парними індексами,
-* а у С - з непарними.
-*****************
-*  A - in 
-*  B, C - out 
-*/
-void  TestVariant(int N, double* A, double* B, double* C) {
-    for (int i = 0; i < N; i++) {
-        B[i] = A[2 * i];
-        C[i] = A[2 * i + 1];
-    }
-}
-/*
-*  Task  Var
-* 
-* 
-*/
-void TaskV()
-{
-    char ch = '5';
-    do {
-        system("cls");
-        MenuTask();
-        ch = getchar();
-        getchar();
-            switch (ch) {
-             case '1': cout << " 1 "; break;
-             case '2': cout << " 2 "; break;
-            //
-            case '5': return;
-            }
-        cout << " Press any key and enter\n";
-        ch = getchar();
-        } while (ch != 27);
-    
-}
-
-void ArrayLocal()
-{
-    double A[1000], B[500], C[500];
-    int n;
-    char ch = '5';
-    do {
-        system("cls");
-        MenuTask();
-        ch = getchar();
-        getchar();
-        switch (ch) {
-        case '1': cout << " 1 "; break;
-        case '2': cout << " 2 "; break;
-            //
-        case '5': return;
+    int B[100] = { 0 }; //робим масив B нулями
+    //вивід масиву В
+    int j = 0; // індекс для масиву B
+    for (int i = 0; i < N; ++i) {
+        if (A[i] > 10) {
+            B[j] = A[i];
+            j++;
         }
-        cout << " Press any key and enter\n";
-        ch = getchar();
-    } while (ch != 27);
-
-}
-
-
-int main()
-{ 
-    
-    
-    
-    const int MAX_SIZE = 560;
-    std::cout << "Hello World!\n";
-    ShowMainMenu();
-    /*
-    double A[MAX_SIZE], B[MAX_SIZE],C[MAX_SIZE];
-    int n,m;
-    n = RndInputArray(MAX_SIZE, A);
-    WriteArrayTextFile(n, A, "1.txt");
-    m = ReadArrayTextFile(MAX_SIZE, B, "1.txt");
-    cout << " \n m= " << m << endl;
-    for (int i = 0; i < m; i++)
-        cout << B[i] << "   ";
-    WriteArrayBinFile(n, A, "1.bin");
-    m = ReadArrayBinFile(MAX_SIZE, C, "1.bin");
-    cout << " \n m= " << m << endl;
-    for (int i = 0; i < m; i++)
-        cout << C[i] << "   ";
-    cout << "\n  Vector \n";
-    vector<double> vA;
-    ConsoleInputVector(MAX_SIZE, vA);
-    for (auto v : vA) {
-        cout << v << "   ";
     }
-*/
-    TaskV();
-    return 1;
-
+    cout << "Масив B:" << endl;
+    for (int i = 0; i < j; i++) {
+        cout << B[i] << " ";
+    }
 }
 
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
+// Task 2
+void task2() {//(номер останнього мін ел серед ел, менших Т1 і розташованих до першого елемента, більшого Т2)
+    const int MAX_SIZE = 100;
+    int arr[MAX_SIZE];
+    int size, T1, T2;
+    int minIndex = -1;
+    //введення розміру масиву та значень T1 та T2
+    cout << "Введіть розмір масиву: ";
+    cin >> size;
+    cout << "Введіть значення T1: ";
+    cin >> T1;
+    cout << "Введіть значення T2: ";
+    cin >> T2;
+    //введення ел масиву
+    cout << "Введіть елементи масиву: ";
+    for (int i = 0; i < size; ++i) {
+        cin >> arr[i];
+    }
+    //пошук номера останнього мін ел
+    for (int i = 0; i < size; ++i) {
+        if (arr[i] < T1 && (minIndex == -1 || arr[i] < arr[minIndex])) {
+            minIndex = i;
+        }
+        if (arr[i] > T2) {
+            break;
+        }
+    }
+    //виведення номера останнього мін ел(числення не з 0)
+    if (minIndex != -1) {
+        cout << "Номер останнього мінімального елемента: " << minIndex << endl;
+    }
+    else {
+        cout << "Мінімальний елемент не знайдено." << endl;
+    }
+}
 
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
+// Task 3
+void task3() {
+    const int MAX_SIZE = 300;
+    int n;
+    cout << "Введіть розмір масивів (n <= 300): ";
+    cin >> n;
+    int X[MAX_SIZE];
+    int Y[MAX_SIZE];
+    cout << "Введіть елементи масиву X:" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "X[" << i << "]: ";
+        cin >> X[i];
+    }
+    cout << "Введіть елементи масиву Y:" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "Y[" << i << "]: ";
+        cin >> Y[i];
+    }
+    int merged[MAX_SIZE * 2];   // об'єднаний масив
+    int mergedSize = 0;         // розмір об'єднаного масиву
+    // додавання ел масиву X до об'єднаного масиву
+    for (int i = 0; i < n; i++) {
+        merged[mergedSize] = X[i];
+        mergedSize++;
+    }
+    // додавання ел масиву Y до об'єднаного масиву
+    for (int i = 0; i < n; i++) {
+        merged[mergedSize] = Y[i];
+        mergedSize++;
+    }
+    //виведення  та обчислення добутку
+    long long dobutok = 1;
+    cout << "Елементи об'єднаного масиву:" << endl;
+    for (int i = 0; i < mergedSize; i++) {
+        cout << merged[i] << " ";
+        dobutok *= merged[i];
+    }
+    cout << endl;
+    cout << "Добуток елементів об'єднаного масиву: " << dobutok << endl;
+}
+
+int main() {
+    setlocale(LC_CTYPE, "Ukr");
+    int task;
+    cout << "Введіть номер завдання (1, 2, або 3): ";
+    cin >> task;
+    switch (task) {
+    case 1:
+        task1();
+        break;
+    case 2:
+        task2();
+        break;
+    case 3:
+        task3();
+        break;
+    default:
+        cout << "Невірний номер завдання." << endl;
+    }
+    return 0;
+}
